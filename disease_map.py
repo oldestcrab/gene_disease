@@ -7,7 +7,7 @@ class Mysql():
         self.db = pymysql.connect(host='localhost', port=3306, user='bmnars', password='vi93nwYV', db='gene_disease')
         self.cursor_id = self.db.cursor()
         self.cursor = self.db.cursor()
-        self.source_table = 'kegg'
+        self.source_table = 'curated_disgenet'
     
 
     def get_id(self):
@@ -65,7 +65,7 @@ class Mysql():
             gene_id = ''
         if gene_name and gene_id and disease_name and disease_id:
             # pass
-            self.save_map(disease_id, gene_name, gene_id, 'kegg')
+            self.save_map(disease_id, gene_name, gene_id, 'disgenet')
         else:
             pass
             # print(disease_id, gene_name, gene_id, 'disgenet')
@@ -73,6 +73,8 @@ class Mysql():
 
     def save_map(self, dis_id, gene_symbol, gene_id, source):
         cursor = self.db.cursor()
+        gene_symbol = gene_symbol.split(';')[0].strip()
+        # print(gene_symbol)     
         data = {
             'dis_id':dis_id,
             'gene_symbol':gene_symbol,
@@ -81,7 +83,7 @@ class Mysql():
         }
         keys = ', '.join(data.keys())
         values = ', '.join(['%s']*len(data))
-        sql = 'insert into _cs_disease_map({keys}) values({values}) ON DUPLICATE KEY UPDATE'.format(keys=keys, values=values)
+        sql = 'insert into _cs_disease_map_copy({keys}) values({values}) ON DUPLICATE KEY UPDATE'.format(keys=keys, values=values)
         update = ' source = concat(source, ",{source}");'.format(source=source)
         sql += update
         try:
